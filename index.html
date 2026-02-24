@@ -42,6 +42,14 @@
       margin: 0;
     }
 
+    .subtitle {
+      color: #aaa;
+      letter-spacing: 5px;
+      font-weight: 600;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+
     .bingo-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
@@ -94,7 +102,7 @@
 
 <header>
   <h1 class="title">BINGO GOLD</h1>
-  <p style="color: #aaa; letter-spacing: 3px;">BY MISHK19000 & FRIENDS</p>
+  <p class="subtitle">BY MDDECN</p>
 </header>
 
 <div class="bingo-grid" id="bingoGrid"></div>
@@ -107,6 +115,7 @@
   function generateCard() {
     const grid = document.getElementById('bingoGrid');
     grid.innerHTML = '';
+    // Gerar números aleatórios de 1 a 75
     let numbers = Array.from({length: 75}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
 
     for(let i = 0; i < 25; i++) {
@@ -122,6 +131,7 @@
       grid.appendChild(cell);
     }
   }
+  // Iniciar jogo automaticamente ao carregar
   generateCard();
 </script>
 
