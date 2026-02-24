@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ball 8 | Bingo Gold</title>
   
-  <meta name="google-site-verification" content="p9Vx3kD5G4OAxKjKJjFUuTaVU77bti1rnM1KORJsVlU" />
+  <meta name="google-site-verification" content="OIvgzp_QKd0d3xJcsX3grlRAuBjDDVz2oQJOUyKPocc" />
 
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
@@ -72,7 +72,7 @@
     .cell.marked { background: var(--marked); border-color: #fff; transform: scale(0.95); }
     .cell.free { background: var(--free); font-size: 0.8rem; }
 
-    .controls { margin-top: 30px; display: flex; gap: 15px; }
+    .controls { margin-top: 30px; }
 
     .btn {
       padding: 15px 30px;
@@ -83,10 +83,11 @@
       letter-spacing: 1px;
       cursor: pointer;
       transition: 0.3s;
+      background: linear-gradient(135deg, var(--gold), var(--gold2));
+      color: #000;
     }
 
-    .btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold2)); color: #000; }
-    .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4); }
+    .btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4); }
   </style>
 </head>
 <body>
@@ -96,26 +97,21 @@
   <p style="color: #aaa; letter-spacing: 3px;">BY MISHK19000 & FRIENDS</p>
 </header>
 
-<div class="bingo-grid" id="bingoGrid">
-  </div>
+<div class="bingo-grid" id="bingoGrid"></div>
 
 <div class="controls">
-  <button class="btn btn-gold" onclick="generateCard()">NEW CARD</button>
+  <button class="btn" onclick="generateCard()">NEW CARD</button>
 </div>
 
 <script>
   function generateCard() {
     const grid = document.getElementById('bingoGrid');
     grid.innerHTML = '';
-    
-    // Números para Bingo (1 a 75)
-    let numbers = Array.from({length: 75}, (_, i) => i + 1);
-    numbers = numbers.sort(() => Math.random() - 0.5).slice(0, 25);
+    let numbers = Array.from({length: 75}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
 
     for(let i = 0; i < 25; i++) {
       const cell = document.createElement('div');
       cell.className = 'cell';
-      
       if(i === 12) {
         cell.innerText = 'FREE';
         cell.classList.add('free', 'marked');
@@ -126,8 +122,6 @@
       grid.appendChild(cell);
     }
   }
-
-  // Iniciar jogo
   generateCard();
 </script>
 
