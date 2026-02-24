@@ -9,67 +9,125 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    /* Estilos do Bingo Gold */
     :root {
-      --gold: #FFD700; --gold2: #FFA500; --dark: #0a0a1a;
-      --card-bg: #13132a; --marked: #7b2fff; --free: #ff4d6d;
+      --gold: #FFD700;
+      --gold2: #FFA500;
+      --dark: #0a0a1a;
+      --card-bg: #13132a;
+      --marked: #7b2fff;
+      --free: #ff4d6d;
     }
+
     body {
-      background: var(--dark); font-family: 'Nunito', sans-serif; color: #fff;
-      text-align: center; min-height: 100vh; margin: 0;
+      background: var(--dark);
+      font-family: 'Nunito', sans-serif;
+      color: #fff;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      background-image: radial-gradient(circle at center, #1a0a3a 0%, #0a0a1a 100%);
     }
+
+    header { padding: 40px 20px; text-align: center; }
+
     .title {
-      font-family: 'Bebas Neue', sans-serif; font-size: 4rem;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 10vw, 5rem);
+      background: linear-gradient(135deg, var(--gold), #fff, var(--gold2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.3));
+      margin: 0;
     }
+
     .bingo-grid {
-      display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
-      max-width: 350px; margin: 20px auto; background: rgba(255,255,255,0.05);
-      padding: 15px; border-radius: 15px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 20px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      max-width: 90vw;
+      width: 380px;
     }
+
     .cell {
-      aspect-ratio: 1; background: var(--card-bg); border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 800; cursor: pointer; border: 1px solid #333;
+      aspect-ratio: 1;
+      background: var(--card-bg);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border: 2px solid #222;
+      transition: 0.2s;
     }
-    .cell.marked { background: var(--marked); border-color: #fff; }
-    .cell.free { background: var(--free); }
+
+    .cell:hover { border-color: var(--gold); }
+    .cell.marked { background: var(--marked); border-color: #fff; transform: scale(0.95); }
+    .cell.free { background: var(--free); font-size: 0.8rem; }
+
+    .controls { margin-top: 30px; display: flex; gap: 15px; }
+
     .btn {
-      padding: 15px 30px; border-radius: 10px; border: none;
-      font-weight: 800; cursor: pointer; background: var(--gold); color: #000;
+      padding: 15px 30px;
+      border-radius: 12px;
+      border: none;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: 0.3s;
     }
+
+    .btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold2)); color: #000; }
+    .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4); }
   </style>
 </head>
 <body>
 
-<header style="padding: 20px;">
-  <div class="title">BINGO GOLD</div>
-  <p style="color: #888;">Luck • Fortune • Glory</p>
+<header>
+  <h1 class="title">BINGO GOLD</h1>
+  <p style="color: #aaa; letter-spacing: 3px;">BY MISHK19000 & FRIENDS</p>
 </header>
 
-<div id="game">
-  <div class="bingo-grid" id="grid"></div>
-  <button class="btn" onclick="generateCard()">NEW CARD</button>
+<div class="bingo-grid" id="bingoGrid">
+  </div>
+
+<div class="controls">
+  <button class="btn btn-gold" onclick="generateCard()">NEW CARD</button>
 </div>
 
 <script>
   function generateCard() {
-    const grid = document.getElementById('grid');
+    const grid = document.getElementById('bingoGrid');
     grid.innerHTML = '';
-    for(let i=0; i<25; i++) {
+    
+    // Números para Bingo (1 a 75)
+    let numbers = Array.from({length: 75}, (_, i) => i + 1);
+    numbers = numbers.sort(() => Math.random() - 0.5).slice(0, 25);
+
+    for(let i = 0; i < 25; i++) {
       const cell = document.createElement('div');
       cell.className = 'cell';
+      
       if(i === 12) {
         cell.innerText = 'FREE';
         cell.classList.add('free', 'marked');
       } else {
-        cell.innerText = Math.floor(Math.random() * 75) + 1;
+        cell.innerText = numbers[i];
         cell.onclick = () => cell.classList.toggle('marked');
       }
       grid.appendChild(cell);
     }
   }
+
+  // Iniciar jogo
   generateCard();
 </script>
 
