@@ -1,192 +1,314 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ball 8 | Bingo Gold</title>
-  
-  <meta name="google-site-verification" content="OIvgzp_QKd0d3xJcsX3grlRAuBjDDVz2oQJOUyKPocc" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo Gold Online | MDDECN</title>
+    
+    <meta name="google-site-verification" content="OIvgzp_QKd0d3xJcsX3grlRAuBjDDVz2oQJOUyKPocc" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --gold: #FFD700;
+            --gold2: #FFA500;
+            --dark: #050510;
+            --card-bg: #13132a;
+            --accent: #7b2fff;
+        }
 
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --gold: #FFD700;
-      --gold2: #FFA500;
-      --dark: #0a0a1a;
-      --card-bg: #13132a;
-      --marked: #7b2fff;
-      --free: #ff4d6d;
-    }
+        body {
+            background: var(--dark);
+            font-family: 'Nunito', sans-serif;
+            color: #fff;
+            margin: 0;
+            overflow-x: hidden;
+        }
 
-    body {
-      background: var(--dark);
-      font-family: 'Nunito', sans-serif;
-      color: #fff;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      background-image: radial-gradient(circle at center, #1a0a3a 0%, #0a0a1a 100%);
-      padding-bottom: 50px;
-    }
+        /* --- BARRA DE NAVEGAÇÃO --- */
+        nav {
+            background: rgba(20, 20, 50, 0.95);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--gold);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
 
-    header { padding: 30px 20px; text-align: center; }
+        .search-box {
+            background: #000;
+            border: 1px solid #444;
+            border-radius: 20px;
+            padding: 8px 15px;
+            color: white;
+            width: 200px;
+            outline: none;
+        }
 
-    .title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(3rem, 10vw, 5rem);
-      background: linear-gradient(135deg, var(--gold), #fff, var(--gold2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin: 0;
-    }
+        .user-stats {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
-    .subtitle { color: #aaa; letter-spacing: 5px; font-weight: 600; font-size: 0.9rem; }
+        .coins {
+            color: var(--gold);
+            font-weight: 900;
+            font-size: 1.2rem;
+        }
 
-    /* Área de Sorteio */
-    .draw-panel {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 20px;
-      border-radius: 20px;
-      margin-bottom: 20px;
-      text-align: center;
-      width: 380px;
-      max-width: 90vw;
-      border: 1px solid var(--gold);
-    }
+        .profile-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 15px;
+            border-radius: 30px;
+        }
 
-    .current-ball {
-      width: 80px;
-      height: 80px;
-      background: radial-gradient(circle at 30% 30%, #fff, var(--gold));
-      color: #000;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.5rem;
-      font-weight: 800;
-      margin: 10px auto;
-      box-shadow: 0 0 20px var(--gold2);
-    }
+        .profile-pic {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #444;
+            border: 2px solid var(--gold);
+            object-fit: cover;
+        }
 
-    /* Grade do Bingo */
-    .bingo-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      padding: 20px;
-      border-radius: 20px;
-      border: 1px solid rgba(255, 215, 0, 0.2);
-      width: 380px;
-      max-width: 90vw;
-    }
+        /* --- TELA DE LOGIN --- */
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
 
-    .cell {
-      aspect-ratio: 1;
-      background: var(--card-bg);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 1.2rem;
-      cursor: pointer;
-      border: 2px solid #222;
-      transition: 0.2s;
-    }
+        .login-card {
+            background: #13132a;
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            border: 2px solid var(--accent);
+            width: 350px;
+            box-shadow: 0 0 30px rgba(123, 47, 255, 0.3);
+        }
 
-    .cell.marked { background: var(--marked); border-color: #fff; transform: scale(0.95); }
-    .cell.free { background: var(--free); font-size: 0.8rem; }
+        .login-card h2 { font-family: 'Bebas Neue'; font-size: 2.5rem; color: var(--gold); margin-bottom: 5px; }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border: none;
+            background: #050510;
+            color: white;
+        }
 
-    .controls { margin-top: 25px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .btn-social {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
 
-    .btn {
-      padding: 12px 25px;
-      border-radius: 12px;
-      border: none;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+        .btn-github { background: #24292e; color: white; }
+        .btn-google { background: white; color: #333; }
 
-    .btn-draw { background: var(--gold); color: #000; font-size: 1.5rem; }
-    .btn-new { background: #333; color: #fff; }
-    .btn:hover { transform: translateY(-3px); opacity: 0.9; }
+        /* --- ÁREA DO JOGO --- */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
 
-    #history { margin-top: 10px; font-size: 0.8rem; color: #ffda44; font-weight: bold; }
-  </style>
+        .competition-bar {
+            background: linear-gradient(90deg, #ff4d6d, var(--accent));
+            padding: 8px 30px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .draw-circle {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle at 30% 30%, #fff, var(--gold));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: #000;
+            font-weight: 900;
+            margin: 20px 0;
+            box-shadow: 0 0 30px var(--gold2);
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 20px;
+            width: 380px;
+            max-width: 95vw;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: var(--card-bg);
+            border: 2px solid #222;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .cell.marked { background: var(--accent); border-color: white; transform: scale(0.9); }
+        .cell.free { background: #ff4d6d; }
+
+        .btn-draw {
+            background: var(--gold);
+            color: black;
+            padding: 15px 40px;
+            border-radius: 15px;
+            border: none;
+            font-family: 'Bebas Neue';
+            font-size: 1.8rem;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
 
-<header>
-  <h1 class="title">BINGO GOLD</h1>
-  <p class="subtitle">BY MDDECN</p>
-</header>
-
-<div class="draw-panel">
-  <div style="font-size: 0.8rem; letter-spacing: 2px;">ÚLTIMA BOLA:</div>
-  <div class="current-ball" id="ballDisplay">?</div>
-  <div id="history">Sorteados: Nenhum</div>
-  <div class="controls">
-    <button class="btn btn-draw" onclick="drawBall()">SORTEAR BOLA 🎱</button>
-  </div>
+<div id="login-overlay">
+    <div class="login-card">
+        <h2>BINGO GOLD ONLINE</h2>
+        <p style="color: #888;">BY MDDECN</p>
+        
+        <input type="text" id="user-name" class="input-field" placeholder="Nome de Usuário">
+        <input type="file" id="user-photo" style="display: none;" accept="image/*">
+        <button class="btn-social" style="background: #333;" onclick="document.getElementById('user-photo').click()">
+            📸 Escolher Foto de Perfil
+        </button>
+        
+        <hr style="border: 0.5px solid #222; margin: 20px 0;">
+        
+        <button class="btn-social btn-github" onclick="iniciarSessao('GitHub')">Entrar com GitHub</button>
+        <button class="btn-social btn-google" onclick="iniciarSessao('Google')">Entrar com Google</button>
+    </div>
 </div>
 
-<div class="bingo-grid" id="bingoGrid"></div>
+<nav>
+    <input type="text" class="search-box" placeholder="Pesquisar jogadores...">
+    <div class="user-stats">
+        <div class="coins">🪙 <span id="coin-count">1000</span></div>
+        <div class="profile-group">
+            <span id="nav-username">Perfil</span>
+            <img src="" id="nav-avatar" class="profile-pic" alt="">
+        </div>
+    </div>
+</nav>
 
-<div class="controls">
-  <button class="btn btn-new" onclick="generateCard()">GERAR NOVA CARTELA 🎟️</button>
+<div class="main-content">
+    <div class="competition-bar">🏆 EVENTO ATIVO: TORNEIO MENSAL MDDECN</div>
+    <h1 style="font-family: 'Bebas Neue'; font-size: 4rem; margin:0; color:var(--gold);">BINGO GOLD</h1>
+    
+    <div class="draw-circle" id="drawn-ball">?</div>
+    
+    <div class="bingo-grid" id="grid"></div>
+    
+    <button class="btn-draw" onclick="sortearNumero()">SORTEAR BOLA</button>
 </div>
 
 <script>
-  let drawnBalls = [];
-  let allNumbers = Array.from({length: 75}, (_, i) => i + 1);
+    let coins = 1000;
+    let nickname = "";
 
-  function drawBall() {
-    if (drawnBalls.length >= 75) {
-      alert("Todos os números já foram sorteados!");
-      return;
+    // Lógica de Login
+    function iniciarSessao(metodo) {
+        const nomeInput = document.getElementById('user-name').value;
+        if (!nomeInput) { alert("Por favor, digite um nome!"); return; }
+        
+        nickname = nomeInput;
+        document.getElementById('nav-username').innerText = nickname;
+        
+        // Simular foto de perfil se não escolher uma
+        const avatar = document.getElementById('nav-avatar');
+        avatar.src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${nickname}`;
+        
+        document.getElementById('login-overlay').style.display = 'none';
+        gerarCartela();
     }
 
-    let available = allNumbers.filter(n => !drawnBalls.includes(n));
-    let picked = available[Math.floor(Math.random() * available.length)];
-    
-    drawnBalls.push(picked);
-    document.getElementById('ballDisplay').innerText = picked;
-    document.getElementById('history').innerText = "Sorteados: " + drawnBalls.join(', ');
-  }
-
-  function generateCard() {
-    const grid = document.getElementById('bingoGrid');
-    grid.innerHTML = '';
-    
-    // Números para a cartela (5 por coluna, mas aqui faremos aleatório 25 de 75)
-    let cardNumbers = [...allNumbers].sort(() => Math.random() - 0.5).slice(0, 25);
-
-    for(let i = 0; i < 25; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      if(i === 12) {
-        cell.innerText = 'FREE';
-        cell.classList.add('free', 'marked');
-      } else {
-        cell.innerText = cardNumbers[i];
-        cell.onclick = () => cell.classList.toggle('marked');
-      }
-      grid.appendChild(cell);
+    // Lógica do Bingo
+    function gerarCartela() {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        let nums = Array.from({length: 75}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+        
+        for(let i=0; i<25; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            if(i === 12) {
+                cell.innerText = "FREE";
+                cell.classList.add('free', 'marked');
+            } else {
+                cell.innerText = nums[i];
+                cell.onclick = () => {
+                    cell.classList.toggle('marked');
+                    if(cell.classList.contains('marked')) {
+                        coins += 5;
+                        atualizarMoedas();
+                    }
+                }
+            }
+            grid.appendChild(cell);
+        }
     }
-    // Reset do sorteio ao trocar cartela (opcional)
-    drawnBalls = [];
-    document.getElementById('ballDisplay').innerText = "?";
-    document.getElementById('history').innerText = "Sorteados: Nenhum";
-  }
 
-  // Inicia a primeira cartela
-  generateCard();
+    function sortearNumero() {
+        if(coins < 10) { alert("Moedas insuficientes!"); return; }
+        coins -= 10;
+        atualizarMoedas();
+        
+        const num = Math.floor(Math.random() * 75) + 1;
+        document.getElementById('drawn-ball').innerText = num;
+    }
+
+    function atualizarMoedas() {
+        document.getElementById('coin-count').innerText = coins;
+    }
 </script>
 
 </body>
