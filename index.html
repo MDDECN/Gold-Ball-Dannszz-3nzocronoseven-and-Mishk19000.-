@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bingo Gold Online | MDDECN</title>
-    
-    <meta name="google-site-verification" content="OIvgzp_QKd0d3xJcsX3grlRAuBjDDVz2oQJOUyKPocc" />
     
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
@@ -16,6 +14,7 @@
             --dark: #050510;
             --card-bg: #13132a;
             --accent: #7b2fff;
+            --success: #00ff88;
         }
 
         body {
@@ -26,7 +25,7 @@
             overflow-x: hidden;
         }
 
-        /* --- BARRA DE NAVEGAÇÃO --- */
+        /* --- NAVIGATION BAR --- */
         nav {
             background: rgba(20, 20, 50, 0.95);
             padding: 10px 20px;
@@ -37,16 +36,6 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-        }
-
-        .search-box {
-            background: #000;
-            border: 1px solid #444;
-            border-radius: 20px;
-            padding: 8px 15px;
-            color: white;
-            width: 200px;
-            outline: none;
         }
 
         .user-stats {
@@ -79,7 +68,7 @@
             object-fit: cover;
         }
 
-        /* --- TELA DE LOGIN --- */
+        /* --- LOGIN SCREEN --- */
         #login-overlay {
             position: fixed;
             inset: 0;
@@ -110,9 +99,10 @@
             border: none;
             background: #050510;
             color: white;
+            box-sizing: border-box;
         }
 
-        .btn-social {
+        .btn-action {
             width: 100%;
             padding: 12px;
             margin: 8px 0;
@@ -120,17 +110,12 @@
             border: none;
             cursor: pointer;
             font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
             transition: 0.3s;
+            background: var(--accent);
+            color: white;
         }
 
-        .btn-github { background: #24292e; color: white; }
-        .btn-google { background: white; color: #333; }
-
-        /* --- ÁREA DO JOGO --- */
+        /* --- GAME AREA --- */
         .main-content {
             display: flex;
             flex-direction: column;
@@ -138,20 +123,13 @@
             padding: 20px;
         }
 
-        .competition-bar {
+        .status-bar {
             background: linear-gradient(90deg, #ff4d6d, var(--accent));
             padding: 8px 30px;
             border-radius: 20px;
             font-weight: 900;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             margin-bottom: 20px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
         }
 
         .draw-circle {
@@ -194,7 +172,7 @@
         }
 
         .cell.marked { background: var(--accent); border-color: white; transform: scale(0.9); }
-        .cell.free { background: #ff4d6d; }
+        .cell.match { background: var(--success) !important; color: #000; box-shadow: 0 0 15px var(--success); }
 
         .btn-draw {
             background: var(--gold);
@@ -216,63 +194,69 @@
         <h2>BINGO GOLD ONLINE</h2>
         <p style="color: #888;">BY MDDECN</p>
         
-        <input type="text" id="user-name" class="input-field" placeholder="Nome de Usuário">
+        <input type="text" id="user-name" class="input-field" placeholder="Username">
         <input type="file" id="user-photo" style="display: none;" accept="image/*">
-        <button class="btn-social" style="background: #333;" onclick="document.getElementById('user-photo').click()">
-            📸 Escolher Foto de Perfil
+        <button class="btn-action" style="background: #333;" onclick="document.getElementById('user-photo').click()">
+            📸 Choose Profile Photo
         </button>
         
         <hr style="border: 0.5px solid #222; margin: 20px 0;">
         
-        <button class="btn-social btn-github" onclick="iniciarSessao('GitHub')">Entrar com GitHub</button>
-        <button class="btn-social btn-google" onclick="iniciarSessao('Google')">Entrar com Google</button>
+        <button class="btn-action" onclick="startSession()">ENTER GAME</button>
     </div>
 </div>
 
 <nav>
-    <input type="text" class="search-box" placeholder="Pesquisar jogadores...">
+    <div style="font-family: 'Bebas Neue'; color: var(--gold); font-size: 1.5rem;">MDDECN</div>
     <div class="user-stats">
         <div class="coins">🪙 <span id="coin-count">1000</span></div>
         <div class="profile-group">
-            <span id="nav-username">Perfil</span>
+            <span id="nav-username">Profile</span>
             <img src="" id="nav-avatar" class="profile-pic" alt="">
         </div>
     </div>
 </nav>
 
 <div class="main-content">
-    <div class="competition-bar">🏆 EVENTO ATIVO: TORNEIO MENSAL MDDECN</div>
+    <div class="status-bar" id="status-text">SELECT 7 NUMBERS TO START!</div>
     <h1 style="font-family: 'Bebas Neue'; font-size: 4rem; margin:0; color:var(--gold);">BINGO GOLD</h1>
     
     <div class="draw-circle" id="drawn-ball">?</div>
     
     <div class="bingo-grid" id="grid"></div>
     
-    <button class="btn-draw" onclick="sortearNumero()">SORTEAR BOLA</button>
+    <button class="btn-draw" onclick="drawNumber()">DRAW BALL (10 COINS)</button>
 </div>
 
 <script>
-    let coins = 1000;
+    let balance = 1000;
     let nickname = "";
+    let selectedNumbers = [];
+    const MAX_SELECTION = 7;
 
-    // Lógica de Login
-    function iniciarSessao(metodo) {
-        const nomeInput = document.getElementById('user-name').value;
-        if (!nomeInput) { alert("Por favor, digite um nome!"); return; }
+    function startSession() {
+        const nameInput = document.getElementById('user-name').value;
+        const photoInput = document.getElementById('user-photo').files[0];
+        const avatar = document.getElementById('nav-avatar');
+
+        if (!nameInput) { alert("Please enter a name!"); return; }
         
-        nickname = nomeInput;
+        nickname = nameInput;
         document.getElementById('nav-username').innerText = nickname;
         
-        // Simular foto de perfil se não escolher uma
-        const avatar = document.getElementById('nav-avatar');
-        avatar.src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${nickname}`;
+        if (photoInput) {
+            const reader = new FileReader();
+            reader.onload = (e) => avatar.src = e.target.result;
+            reader.readAsDataURL(photoInput);
+        } else {
+            avatar.src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${nickname}`;
+        }
         
         document.getElementById('login-overlay').style.display = 'none';
-        gerarCartela();
+        generateCard();
     }
 
-    // Lógica do Bingo
-    function gerarCartela() {
+    function generateCard() {
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
         let nums = Array.from({length: 75}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
@@ -280,34 +264,63 @@
         for(let i=0; i<25; i++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
-            if(i === 12) {
-                cell.innerText = "FREE";
-                cell.classList.add('free', 'marked');
-            } else {
-                cell.innerText = nums[i];
-                cell.onclick = () => {
-                    cell.classList.toggle('marked');
-                    if(cell.classList.contains('marked')) {
-                        coins += 5;
-                        atualizarMoedas();
+            const val = nums[i];
+            cell.innerText = val;
+            
+            cell.onclick = () => {
+                if (!cell.classList.contains('marked')) {
+                    if (selectedNumbers.length < MAX_SELECTION) {
+                        cell.classList.add('marked');
+                        selectedNumbers.push(val);
+                        updateStatus();
+                    } else {
+                        alert("Limit reached! You can only pick 7 numbers.");
                     }
+                } else {
+                    cell.classList.remove('marked');
+                    cell.classList.remove('match');
+                    selectedNumbers = selectedNumbers.filter(n => n !== val);
+                    updateStatus();
                 }
             }
             grid.appendChild(cell);
         }
     }
 
-    function sortearNumero() {
-        if(coins < 10) { alert("Moedas insuficientes!"); return; }
-        coins -= 10;
-        atualizarMoedas();
+    function drawNumber() {
+        if (selectedNumbers.length < 1) { alert("Pick at least one number!"); return; }
+        if (balance < 10) { alert("Not enough coins!"); return; }
         
-        const num = Math.floor(Math.random() * 75) + 1;
-        document.getElementById('drawn-ball').innerText = num;
+        balance -= 10;
+        updateBalanceDisplay();
+        
+        const drawn = Math.floor(Math.random() * 75) + 1;
+        document.getElementById('drawn-ball').innerText = drawn;
+
+        // CHECK WIN CONDITION
+        if (selectedNumbers.includes(drawn)) {
+            balance += 50;
+            document.getElementById('status-text').innerText = "✨ WINNER! +50 COINS ✨";
+            updateBalanceDisplay();
+            highlightMatch(drawn);
+        } else {
+            document.getElementById('status-text').innerText = "NO MATCH, TRY AGAIN!";
+        }
     }
 
-    function atualizarMoedas() {
-        document.getElementById('coin-count').innerText = coins;
+    function highlightMatch(num) {
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach(c => {
+            if(parseInt(c.innerText) === num) c.classList.add('match');
+        });
+    }
+
+    function updateStatus() {
+        document.getElementById('status-text').innerText = `SELECTED: ${selectedNumbers.length} / ${MAX_SELECTION}`;
+    }
+
+    function updateBalanceDisplay() {
+        document.getElementById('coin-count').innerText = balance;
     }
 </script>
 
