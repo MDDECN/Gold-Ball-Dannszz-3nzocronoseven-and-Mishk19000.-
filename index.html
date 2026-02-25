@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bingo Gold Online | MDDECN</title>
+    <title>Bingo Gold Online | Pro Edition</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
@@ -25,7 +25,7 @@
             overflow-x: hidden;
         }
 
-        /* --- NAVIGATION BAR --- */
+        /* --- NAVIGATION --- */
         nav {
             background: rgba(20, 20, 50, 0.95);
             padding: 10px 20px;
@@ -34,293 +34,232 @@
             align-items: center;
             border-bottom: 2px solid var(--gold);
             position: sticky;
-            top: 0;
-            z-index: 1000;
+            top: 0; z-index: 1000;
         }
 
-        .user-stats {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .coins {
-            color: var(--gold);
-            font-weight: 900;
-            font-size: 1.2rem;
-        }
-
-        .profile-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(255,255,255,0.1);
-            padding: 5px 15px;
-            border-radius: 30px;
-        }
-
-        .profile-pic {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: #444;
-            border: 2px solid var(--gold);
-            object-fit: cover;
-        }
-
-        /* --- LOGIN SCREEN --- */
-        #login-overlay {
-            position: fixed;
-            inset: 0;
-            background: var(--dark);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .login-card {
-            background: #13132a;
-            padding: 40px;
-            border-radius: 25px;
-            text-align: center;
-            border: 2px solid var(--accent);
-            width: 350px;
-            box-shadow: 0 0 30px rgba(123, 47, 255, 0.3);
-        }
-
-        .login-card h2 { font-family: 'Bebas Neue'; font-size: 2.5rem; color: var(--gold); margin-bottom: 5px; }
+        .user-stats { display: flex; align-items: center; gap: 15px; }
+        .profile-pic { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
         
-        .input-field {
-            width: 100%;
-            padding: 12px;
-            margin: 15px 0;
-            border-radius: 10px;
-            border: none;
-            background: #050510;
-            color: white;
-            box-sizing: border-box;
+        .level-badge {
+            background: var(--gold); color: #000;
+            padding: 2px 8px; border-radius: 5px; font-weight: 900; font-size: 0.8rem;
         }
 
-        .btn-action {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-            background: var(--accent);
-            color: white;
+        /* --- XP BAR --- */
+        .xp-container { width: 100%; height: 5px; background: #222; position: absolute; bottom: 0; left: 0; }
+        #xp-bar { height: 100%; width: 0%; background: var(--success); transition: 0.5s; }
+
+        /* --- LOGIN --- */
+        #login-overlay {
+            position: fixed; inset: 0; background: var(--dark);
+            display: flex; justify-content: center; align-items: center; z-index: 9999;
+        }
+        .login-card {
+            background: #13132a; padding: 40px; border-radius: 25px;
+            text-align: center; border: 2px solid var(--accent); width: 320px;
         }
 
-        /* --- GAME AREA --- */
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .status-bar {
-            background: linear-gradient(90deg, #ff4d6d, var(--accent));
-            padding: 8px 30px;
-            border-radius: 20px;
-            font-weight: 900;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-        }
+        /* --- MAIN GAME --- */
+        .main-content { display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        
+        .online-counter { color: var(--success); font-size: 0.8rem; margin-bottom: 10px; font-weight: bold; }
 
         .draw-circle {
-            width: 120px;
-            height: 120px;
-            background: radial-gradient(circle at 30% 30%, #fff, var(--gold));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.5rem;
-            color: #000;
-            font-weight: 900;
-            margin: 20px 0;
-            box-shadow: 0 0 30px var(--gold2);
+            width: 110px; height: 110px; background: radial-gradient(circle at 30% 30%, #fff, var(--gold));
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 3rem; color: #000; font-weight: 900; margin: 15px 0;
+            box-shadow: 0 0 25px var(--gold2);
         }
 
         .bingo-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            border-radius: 20px;
-            width: 380px;
-            max-width: 95vw;
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; width: 350px;
         }
 
         .cell {
-            aspect-ratio: 1;
-            background: var(--card-bg);
-            border: 2px solid #222;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            cursor: pointer;
-            transition: 0.2s;
+            aspect-ratio: 1; background: var(--card-bg); border: 2px solid #222;
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; cursor: pointer; transition: 0.2s;
         }
-
-        .cell.marked { background: var(--accent); border-color: white; transform: scale(0.9); }
+        .cell.marked { background: var(--accent); border-color: white; }
         .cell.match { background: var(--success) !important; color: #000; box-shadow: 0 0 15px var(--success); }
 
         .btn-draw {
-            background: var(--gold);
-            color: black;
-            padding: 15px 40px;
-            border-radius: 15px;
-            border: none;
-            font-family: 'Bebas Neue';
-            font-size: 1.8rem;
-            cursor: pointer;
-            margin-top: 20px;
+            background: var(--gold); color: black; padding: 15px 40px; border-radius: 15px;
+            border: none; font-family: 'Bebas Neue'; font-size: 1.8rem; cursor: pointer; margin-top: 20px;
         }
+
+        .logout-btn { background: none; border: 1px solid #444; color: #888; cursor: pointer; font-size: 0.7rem; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div id="login-overlay">
     <div class="login-card">
-        <h2>BINGO GOLD ONLINE</h2>
-        <p style="color: #888;">BY MDDECN</p>
-        
-        <input type="text" id="user-name" class="input-field" placeholder="Username">
+        <h2 style="font-family: 'Bebas Neue'; color: var(--gold); font-size: 2rem;">BINGO GOLD ONLINE</h2>
+        <input type="text" id="user-name" style="width:100%; padding:10px; margin:10px 0; background:#050510; color:white; border:none; border-radius:8px;" placeholder="Username">
         <input type="file" id="user-photo" style="display: none;" accept="image/*">
-        <button class="btn-action" style="background: #333;" onclick="document.getElementById('user-photo').click()">
-            📸 Choose Profile Photo
-        </button>
-        
-        <hr style="border: 0.5px solid #222; margin: 20px 0;">
-        
-        <button class="btn-action" onclick="startSession()">ENTER GAME</button>
+        <button onclick="document.getElementById('user-photo').click()" style="width:100%; padding:10px; background:#333; color:white; border:none; border-radius:8px; margin-bottom:10px; cursor:pointer;">📸 Upload Photo</button>
+        <button onclick="saveAndStart()" style="width:100%; padding:12px; background:var(--accent); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">START PLAYING</button>
     </div>
 </div>
 
 <nav>
-    <div style="font-family: 'Bebas Neue'; color: var(--gold); font-size: 1.5rem;">MDDECN</div>
     <div class="user-stats">
-        <div class="coins">🪙 <span id="coin-count">1000</span></div>
-        <div class="profile-group">
-            <span id="nav-username">Profile</span>
-            <img src="" id="nav-avatar" class="profile-pic" alt="">
+        <img src="" id="nav-avatar" class="profile-pic">
+        <div>
+            <div style="font-weight: bold; font-size: 0.9rem;"><span id="nav-username">Player</span> <span class="level-badge">LVL <span id="lvl-display">1</span></span></div>
+            <div style="color: var(--gold); font-size: 0.8rem;">🪙 <span id="coin-count">1000</span></div>
         </div>
     </div>
+    <button class="logout-btn" onclick="logout()">LOGOUT</button>
+    <div class="xp-container"><div id="xp-bar"></div></div>
 </nav>
 
 <div class="main-content">
-    <div class="status-bar" id="status-text">SELECT 7 NUMBERS TO START!</div>
-    <h1 style="font-family: 'Bebas Neue'; font-size: 4rem; margin:0; color:var(--gold);">BINGO GOLD</h1>
+    <div class="online-counter">● <span id="online-users">1,402</span> PLAYERS ONLINE</div>
+    <div id="status-msg" style="font-weight: 900; color: var(--gold);">PICK 7 NUMBERS!</div>
     
     <div class="draw-circle" id="drawn-ball">?</div>
-    
     <div class="bingo-grid" id="grid"></div>
     
     <button class="btn-draw" onclick="drawNumber()">DRAW BALL (10 COINS)</button>
 </div>
 
 <script>
-    let balance = 1000;
-    let nickname = "";
+    // --- DATA STATE ---
+    let userData = {
+        name: "",
+        coins: 1000,
+        xp: 0,
+        lvl: 1,
+        photo: ""
+    };
+    
     let selectedNumbers = [];
-    const MAX_SELECTION = 7;
+    const MAX_SELECT = 7;
 
-    function startSession() {
-        const nameInput = document.getElementById('user-name').value;
-        const photoInput = document.getElementById('user-photo').files[0];
-        const avatar = document.getElementById('nav-avatar');
-
-        if (!nameInput) { alert("Please enter a name!"); return; }
-        
-        nickname = nameInput;
-        document.getElementById('nav-username').innerText = nickname;
-        
-        if (photoInput) {
-            const reader = new FileReader();
-            reader.onload = (e) => avatar.src = e.target.result;
-            reader.readAsDataURL(photoInput);
-        } else {
-            avatar.src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${nickname}`;
+    // --- INITIAL LOAD (SAVE LOGIC) ---
+    window.onload = () => {
+        const saved = localStorage.getItem('bingoSave');
+        if(saved) {
+            userData = JSON.parse(saved);
+            applyUserData();
+            document.getElementById('login-overlay').style.display = 'none';
+            generateCard();
         }
+        animateOnlineCounter();
+    };
+
+    function saveAndStart() {
+        const name = document.getElementById('user-name').value;
+        if(!name) return alert("Enter a name!");
         
+        userData.name = name;
+        const photoFile = document.getElementById('user-photo').files[0];
+        
+        if(photoFile) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                userData.photo = e.target.result;
+                finalizeLogin();
+            };
+            reader.readAsDataURL(photoFile);
+        } else {
+            userData.photo = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${name}`;
+            finalizeLogin();
+        }
+    }
+
+    function finalizeLogin() {
+        localStorage.setItem('bingoSave', JSON.stringify(userData));
+        applyUserData();
         document.getElementById('login-overlay').style.display = 'none';
         generateCard();
     }
 
+    function applyUserData() {
+        document.getElementById('nav-username').innerText = userData.name;
+        document.getElementById('coin-count').innerText = userData.coins;
+        document.getElementById('lvl-display').innerText = userData.lvl;
+        document.getElementById('nav-avatar').src = userData.photo;
+        updateXPBar();
+    }
+
+    // --- GAME LOGIC ---
     function generateCard() {
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
         let nums = Array.from({length: 75}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
-        
         for(let i=0; i<25; i++) {
             const cell = document.createElement('div');
             cell.className = 'cell';
-            const val = nums[i];
-            cell.innerText = val;
-            
+            cell.innerText = nums[i];
             cell.onclick = () => {
-                if (!cell.classList.contains('marked')) {
-                    if (selectedNumbers.length < MAX_SELECTION) {
-                        cell.classList.add('marked');
-                        selectedNumbers.push(val);
-                        updateStatus();
-                    } else {
-                        alert("Limit reached! You can only pick 7 numbers.");
-                    }
-                } else {
-                    cell.classList.remove('marked');
-                    cell.classList.remove('match');
-                    selectedNumbers = selectedNumbers.filter(n => n !== val);
-                    updateStatus();
+                if(!cell.classList.contains('marked') && selectedNumbers.length < MAX_SELECT) {
+                    cell.classList.add('marked');
+                    selectedNumbers.push(nums[i]);
+                } else if(cell.classList.contains('marked')) {
+                    cell.classList.remove('marked', 'match');
+                    selectedNumbers = selectedNumbers.filter(n => n !== nums[i]);
                 }
-            }
+                document.getElementById('status-msg').innerText = `SELECTED: ${selectedNumbers.length}/${MAX_SELECT}`;
+            };
             grid.appendChild(cell);
         }
     }
 
     function drawNumber() {
-        if (selectedNumbers.length < 1) { alert("Pick at least one number!"); return; }
-        if (balance < 10) { alert("Not enough coins!"); return; }
-        
-        balance -= 10;
-        updateBalanceDisplay();
-        
+        if(selectedNumbers.length < 1) return alert("Pick numbers first!");
+        if(userData.coins < 10) return alert("Out of coins!");
+
+        userData.coins -= 10;
         const drawn = Math.floor(Math.random() * 75) + 1;
         document.getElementById('drawn-ball').innerText = drawn;
 
-        // CHECK WIN CONDITION
-        if (selectedNumbers.includes(drawn)) {
-            balance += 50;
-            document.getElementById('status-text').innerText = "✨ WINNER! +50 COINS ✨";
-            updateBalanceDisplay();
-            highlightMatch(drawn);
+        if(selectedNumbers.includes(drawn)) {
+            userData.coins += 50;
+            userData.xp += 25;
+            document.getElementById('status-msg').innerText = "✨ MATCH! +50 COINS +25 XP ✨";
+            checkLevelUp();
+            highlight(drawn);
         } else {
-            document.getElementById('status-text').innerText = "NO MATCH, TRY AGAIN!";
+            document.getElementById('status-msg').innerText = "TRY AGAIN!";
+        }
+        
+        saveData();
+        applyUserData();
+    }
+
+    function checkLevelUp() {
+        let xpNeeded = userData.lvl * 100;
+        if(userData.xp >= xpNeeded) {
+            userData.xp = 0;
+            userData.lvl++;
+            alert("🎉 LEVEL UP! You are now Level " + userData.lvl);
         }
     }
 
-    function highlightMatch(num) {
-        const cells = document.querySelectorAll('.cell');
-        cells.forEach(c => {
-            if(parseInt(c.innerText) === num) c.classList.add('match');
+    function updateXPBar() {
+        let percent = (userData.xp / (userData.lvl * 100)) * 100;
+        document.getElementById('xp-bar').style.width = percent + "%";
+    }
+
+    function highlight(n) {
+        document.querySelectorAll('.cell').forEach(c => {
+            if(parseInt(c.innerText) === n) c.classList.add('match');
         });
     }
 
-    function updateStatus() {
-        document.getElementById('status-text').innerText = `SELECTED: ${selectedNumbers.length} / ${MAX_SELECTION}`;
-    }
+    function saveData() { localStorage.setItem('bingoSave', JSON.stringify(userData)); }
 
-    function updateBalanceDisplay() {
-        document.getElementById('coin-count').innerText = balance;
+    function logout() { localStorage.removeItem('bingoSave'); location.reload(); }
+
+    function animateOnlineCounter() {
+        setInterval(() => {
+            let base = 1400 + Math.floor(Math.random() * 50);
+            document.getElementById('online-users').innerText = base.toLocaleString();
+        }, 3000);
     }
 </script>
 
