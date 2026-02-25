@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bingo Gold Online | Pro Edition</title>
+    <title>Bingo Gold Online | REAL CLOUD</title>
     
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
@@ -23,6 +26,7 @@
             color: #fff;
             margin: 0;
             overflow-x: hidden;
+            text-align: center;
         }
 
         /* --- NAVIGATION --- */
@@ -59,27 +63,15 @@
             text-align: center; border: 2px solid var(--accent); width: 320px;
         }
 
-        /* --- MAIN GAME --- */
-        .main-content { display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        
-        .online-counter { color: var(--success); font-size: 0.8rem; margin-bottom: 10px; font-weight: bold; }
-
-        .draw-circle {
-            width: 110px; height: 110px; background: radial-gradient(circle at 30% 30%, #fff, var(--gold));
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 3rem; color: #000; font-weight: 900; margin: 15px 0;
-            box-shadow: 0 0 25px var(--gold2);
-        }
-
+        /* --- GAME GRID --- */
         .bingo-grid {
             display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
-            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; width: 350px;
+            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; width: 350px; margin: 0 auto;
         }
-
         .cell {
             aspect-ratio: 1; background: var(--card-bg); border: 2px solid #222;
             border-radius: 10px; display: flex; align-items: center; justify-content: center;
-            font-weight: 900; cursor: pointer; transition: 0.2s;
+            font-weight: 900; cursor: pointer;
         }
         .cell.marked { background: var(--accent); border-color: white; }
         .cell.match { background: var(--success) !important; color: #000; box-shadow: 0 0 15px var(--success); }
@@ -88,178 +80,148 @@
             background: var(--gold); color: black; padding: 15px 40px; border-radius: 15px;
             border: none; font-family: 'Bebas Neue'; font-size: 1.8rem; cursor: pointer; margin-top: 20px;
         }
-
-        .logout-btn { background: none; border: 1px solid #444; color: #888; cursor: pointer; font-size: 0.7rem; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div id="login-overlay">
     <div class="login-card">
-        <h2 style="font-family: 'Bebas Neue'; color: var(--gold); font-size: 2rem;">BINGO GOLD ONLINE</h2>
-        <input type="text" id="user-name" style="width:100%; padding:10px; margin:10px 0; background:#050510; color:white; border:none; border-radius:8px;" placeholder="Username">
-        <input type="file" id="user-photo" style="display: none;" accept="image/*">
-        <button onclick="document.getElementById('user-photo').click()" style="width:100%; padding:10px; background:#333; color:white; border:none; border-radius:8px; margin-bottom:10px; cursor:pointer;">📸 Upload Photo</button>
-        <button onclick="saveAndStart()" style="width:100%; padding:12px; background:var(--accent); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">START PLAYING</button>
+        <h2 style="font-family: 'Bebas Neue'; color: var(--gold);">BINGO GOLD ONLINE</h2>
+        <input type="text" id="user-id" style="width:100%; padding:10px; margin:10px 0; border-radius:8px;" placeholder="Username">
+        <button onclick="loginToCloud()" style="width:100%; padding:12px; background:var(--accent); color:white; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">CONNECT TO CLOUD</button>
     </div>
 </div>
 
 <nav>
     <div class="user-stats">
         <img src="" id="nav-avatar" class="profile-pic">
-        <div>
-            <div style="font-weight: bold; font-size: 0.9rem;"><span id="nav-username">Player</span> <span class="level-badge">LVL <span id="lvl-display">1</span></span></div>
-            <div style="color: var(--gold); font-size: 0.8rem;">🪙 <span id="coin-count">1000</span></div>
+        <div style="text-align: left;">
+            <div style="font-weight: bold;"><span id="nav-username">Player</span> <span class="level-badge">LVL <span id="lvl-display">1</span></span></div>
+            <div style="color: var(--gold); font-size: 0.8rem;">🪙 <span id="coin-count">0</span></div>
         </div>
     </div>
-    <button class="logout-btn" onclick="logout()">LOGOUT</button>
+    <div style="color: var(--success); font-size: 0.7rem; font-weight: bold;">● <span id="online-users">0</span> ONLINE</div>
     <div class="xp-container"><div id="xp-bar"></div></div>
 </nav>
 
-<div class="main-content">
-    <div class="online-counter">● <span id="online-users">1,402</span> PLAYERS ONLINE</div>
-    <div id="status-msg" style="font-weight: 900; color: var(--gold);">PICK 7 NUMBERS!</div>
-    
-    <div class="draw-circle" id="drawn-ball">?</div>
+<div class="main-content" style="padding: 20px;">
+    <div id="status-msg" style="margin-bottom: 10px; font-weight: 900; color: var(--gold);">PICK 7 NUMBERS!</div>
+    <div class="draw-circle" id="drawn-ball" style="font-size: 3rem; background: white; color: black; width: 80px; height: 80px; border-radius: 50%; margin: 10px auto; display: flex; align-items: center; justify-content: center;">?</div>
     <div class="bingo-grid" id="grid"></div>
-    
-    <button class="btn-draw" onclick="drawNumber()">DRAW BALL (10 COINS)</button>
+    <button class="btn-draw" onclick="drawNumber()">DRAW (10 COINS)</button>
 </div>
 
 <script>
-    // --- DATA STATE ---
-    let userData = {
-        name: "",
-        coins: 1000,
-        xp: 0,
-        lvl: 1,
-        photo: ""
+    // --- 1. FIREBASE CONFIG (COLE SUAS CHAVES AQUI) ---
+    const firebaseConfig = {
+        apiKey: "SUA_API_KEY",
+        authDomain: "SEU_PROJETO.firebaseapp.com",
+        databaseURL: "https://SEU_PROJETO.firebaseio.com",
+        projectId: "SEU_PROJETO",
+        storageBucket: "SEU_PROJETO.appspot.com",
+        messagingSenderId: "00000000",
+        appId: "1:000000:web:000000"
     };
-    
+
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    let myId = "";
     let selectedNumbers = [];
-    const MAX_SELECT = 7;
+    let userData = {};
 
-    // --- INITIAL LOAD (SAVE LOGIC) ---
-    window.onload = () => {
-        const saved = localStorage.getItem('bingoSave');
-        if(saved) {
-            userData = JSON.parse(saved);
-            applyUserData();
-            document.getElementById('login-overlay').style.display = 'none';
-            generateCard();
-        }
-        animateOnlineCounter();
-    };
+    // --- 2. LOGIN & CLOUD SYNC ---
+    function loginToCloud() {
+        myId = document.getElementById('user-id').value;
+        if(!myId) return alert("Please enter a username!");
 
-    function saveAndStart() {
-        const name = document.getElementById('user-name').value;
-        if(!name) return alert("Enter a name!");
-        
-        userData.name = name;
-        const photoFile = document.getElementById('user-photo').files[0];
-        
-        if(photoFile) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                userData.photo = e.target.result;
-                finalizeLogin();
-            };
-            reader.readAsDataURL(photoFile);
-        } else {
-            userData.photo = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${name}`;
-            finalizeLogin();
-        }
+        database.ref('users/' + myId).once('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                database.ref('users/' + myId).set({
+                    name: myId, coins: 1000, lvl: 1, xp: 0
+                });
+            }
+            notifyLogin(myId);
+            startSync();
+        });
     }
 
-    function finalizeLogin() {
-        localStorage.setItem('bingoSave', JSON.stringify(userData));
-        applyUserData();
+    function startSync() {
         document.getElementById('login-overlay').style.display = 'none';
+        database.ref('users/' + myId).on('value', (snapshot) => {
+            userData = snapshot.val();
+            updateUI();
+        });
+        database.ref('users').on('value', (s) => document.getElementById('online-users').innerText = s.numChildren());
         generateCard();
     }
 
-    function applyUserData() {
-        document.getElementById('nav-username').innerText = userData.name;
-        document.getElementById('coin-count').innerText = userData.coins;
-        document.getElementById('lvl-display').innerText = userData.lvl;
-        document.getElementById('nav-avatar').src = userData.photo;
-        updateXPBar();
+    // --- 3. NOTIFICATIONS ---
+    function notifyLogin(name) {
+        database.ref('notifications').push({ msg: `${name} joined!`, time: Date.now() });
     }
 
-    // --- GAME LOGIC ---
+    database.ref('notifications').limitToLast(1).on('child_added', (s) => {
+        const d = s.val();
+        if(Date.now() - d.time < 5000) showToast(d.msg);
+    });
+
+    function showToast(txt) {
+        const t = document.createElement('div');
+        t.innerText = txt;
+        t.style = "position:fixed; top:70px; right:20px; background:var(--accent); padding:10px; border-radius:10px; z-index:2000; animation: fade 3s;";
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+
+    // --- 4. GAME ENGINE ---
+    function drawNumber() {
+        if(selectedNumbers.length < 1) return alert("Select numbers first!");
+        if(userData.coins < 10) return alert("No coins!");
+
+        const drawn = Math.floor(Math.random() * 75) + 1;
+        document.getElementById('drawn-ball').innerText = drawn;
+
+        let upd = { coins: userData.coins - 10, xp: userData.xp };
+        if(selectedNumbers.includes(drawn)) {
+            upd.coins += 50; upd.xp += 20;
+            if(upd.xp >= userData.lvl * 100) { upd.xp = 0; upd.lvl = userData.lvl + 1; alert("Level Up!"); }
+            highlight(drawn);
+        }
+        database.ref('users/' + myId).update(upd);
+    }
+
     function generateCard() {
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
         let nums = Array.from({length: 75}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
         for(let i=0; i<25; i++) {
             const cell = document.createElement('div');
-            cell.className = 'cell';
-            cell.innerText = nums[i];
+            cell.className = 'cell'; cell.innerText = nums[i];
             cell.onclick = () => {
-                if(!cell.classList.contains('marked') && selectedNumbers.length < MAX_SELECT) {
+                if(cell.classList.contains('marked')) {
+                    cell.classList.remove('marked');
+                    selectedNumbers = selectedNumbers.filter(n => n !== nums[i]);
+                } else if(selectedNumbers.length < 7) {
                     cell.classList.add('marked');
                     selectedNumbers.push(nums[i]);
-                } else if(cell.classList.contains('marked')) {
-                    cell.classList.remove('marked', 'match');
-                    selectedNumbers = selectedNumbers.filter(n => n !== nums[i]);
                 }
-                document.getElementById('status-msg').innerText = `SELECTED: ${selectedNumbers.length}/${MAX_SELECT}`;
+                document.getElementById('status-msg').innerText = `SELECTED: ${selectedNumbers.length}/7`;
             };
             grid.appendChild(cell);
         }
     }
 
-    function drawNumber() {
-        if(selectedNumbers.length < 1) return alert("Pick numbers first!");
-        if(userData.coins < 10) return alert("Out of coins!");
-
-        userData.coins -= 10;
-        const drawn = Math.floor(Math.random() * 75) + 1;
-        document.getElementById('drawn-ball').innerText = drawn;
-
-        if(selectedNumbers.includes(drawn)) {
-            userData.coins += 50;
-            userData.xp += 25;
-            document.getElementById('status-msg').innerText = "✨ MATCH! +50 COINS +25 XP ✨";
-            checkLevelUp();
-            highlight(drawn);
-        } else {
-            document.getElementById('status-msg').innerText = "TRY AGAIN!";
-        }
-        
-        saveData();
-        applyUserData();
-    }
-
-    function checkLevelUp() {
-        let xpNeeded = userData.lvl * 100;
-        if(userData.xp >= xpNeeded) {
-            userData.xp = 0;
-            userData.lvl++;
-            alert("🎉 LEVEL UP! You are now Level " + userData.lvl);
-        }
-    }
-
-    function updateXPBar() {
-        let percent = (userData.xp / (userData.lvl * 100)) * 100;
-        document.getElementById('xp-bar').style.width = percent + "%";
-    }
-
     function highlight(n) {
-        document.querySelectorAll('.cell').forEach(c => {
-            if(parseInt(c.innerText) === n) c.classList.add('match');
-        });
+        document.querySelectorAll('.cell').forEach(c => { if(parseInt(c.innerText) === n) c.classList.add('match'); });
     }
 
-    function saveData() { localStorage.setItem('bingoSave', JSON.stringify(userData)); }
-
-    function logout() { localStorage.removeItem('bingoSave'); location.reload(); }
-
-    function animateOnlineCounter() {
-        setInterval(() => {
-            let base = 1400 + Math.floor(Math.random() * 50);
-            document.getElementById('online-users').innerText = base.toLocaleString();
-        }, 3000);
+    function updateUI() {
+        document.getElementById('nav-username').innerText = userData.name;
+        document.getElementById('coin-count').innerText = userData.coins;
+        document.getElementById('lvl-display').innerText = userData.lvl;
+        document.getElementById('nav-avatar').src = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${userData.name}`;
+        document.getElementById('xp-bar').style.width = (userData.xp / (userData.lvl * 100)) * 100 + "%";
     }
 </script>
 
