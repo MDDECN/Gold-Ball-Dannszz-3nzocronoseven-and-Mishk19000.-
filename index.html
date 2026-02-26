@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bingo Gold Online | MDDECN (or crono7)</title>
+    <title>Bingo Gold | Online Ranking</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -11,105 +11,78 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --gold: #FFD700;
-            --accent: #7b2fff;
-            --dark: #050510;
-            --success: #00ff88;
-        }
+        :root { --gold: #FFD700; --accent: #7b2fff; --dark: #050510; --success: #00ff88; }
+        body { background: var(--dark); font-family: 'Nunito', sans-serif; color: #fff; margin: 0; text-align: center; }
 
-        body {
-            background: var(--dark);
-            font-family: 'Nunito', sans-serif;
-            color: #fff;
-            margin: 0;
-            text-align: center;
-        }
-
-        /* --- LOGIN SCREEN --- */
-        #login-overlay {
-            position: fixed; inset: 0; background: var(--dark);
-            display: flex; justify-content: center; align-items: center; z-index: 9999;
-        }
-        .login-card {
-            background: #13132a; padding: 30px; border-radius: 25px;
-            border: 2px solid var(--accent); width: 90%; max-width: 350px;
-            box-shadow: 0 0 30px rgba(123, 47, 255, 0.3);
-        }
+        /* LOGIN SCREEN */
+        #login-overlay { position: fixed; inset: 0; background: var(--dark); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .login-card { background: #13132a; padding: 30px; border-radius: 25px; border: 2px solid var(--accent); width: 85%; max-width: 350px; box-shadow: 0 0 30px rgba(123, 47, 255, 0.3); }
+        .btn-login { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 12px; font-weight: 900; font-size: 1.5rem; cursor: pointer; font-family: 'Bebas Neue'; transition: 0.3s; }
+        .btn-login:active { transform: scale(0.95); }
         
-        .login-card input[type="text"] {
-            width: 100%; padding: 12px; margin: 15px 0; border-radius: 10px;
-            border: none; background: #050510; color: white; box-sizing: border-box;
-        }
-
-        /* STYLISH REGISTER BUTTON */
-        .btn-register {
-            width: 100%; padding: 15px; background: var(--accent);
-            color: white; border: none; border-radius: 12px;
-            font-weight: 900; font-size: 1.1rem; cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-        }
-        .btn-register:active { transform: scale(0.95); background: #5a1ec9; }
-
-        .photo-preview {
-            width: 80px; height: 80px; border-radius: 50%;
-            border: 2px dashed var(--gold); margin: 10px auto;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; background: #222;
-            cursor: pointer;
-        }
+        .photo-picker { width: 90px; height: 90px; border-radius: 50%; border: 2px dashed var(--gold); margin: 15px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #222; cursor: pointer; }
         #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
 
-        /* --- GAME UI --- */
-        nav { background: #13132a; padding: 10px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
-        .profile-img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
-        .bingo-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 95%; max-width: 350px; margin: 20px auto; }
-        .cell { aspect-ratio: 1; background: #1a1a3a; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; }
-        .cell.marked { background: var(--accent); color: white; }
-        .cell.match { background: var(--success); color: #000; box-shadow: 0 0 10px var(--success); }
+        /* UI */
+        nav { background: #13132a; padding: 15px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; }
+        .profile-img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
+        
+        /* RANKING */
+        #ranking-box { background: rgba(123, 47, 255, 0.1); margin: 20px auto; padding: 15px; border-radius: 15px; width: 90%; max-width: 350px; border: 1px solid var(--accent); }
+        .rank-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; font-size: 0.9rem; }
+        .rank-gold { color: var(--gold); font-weight: bold; }
+
+        .bingo-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; width: 90%; max-width: 380px; margin: 25px auto; }
+        .cell { aspect-ratio: 1; background: #1a1a3a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; border: 1px solid #25254a; }
+        .cell.marked { background: var(--accent); border-color: #fff; }
+        .cell.match { background: var(--success) !important; color: #000; box-shadow: 0 0 15px var(--success); }
     </style>
 </head>
 <body>
 
 <div id="login-overlay">
     <div class="login-card">
-        <h2 style="font-family: 'Bebas Neue'; color: var(--gold); font-size: 2rem; margin: 0;">BINGO GOLD</h2>
-        <p style="font-size: 0.8rem; color: #888;">Create your online account</p>
+        <h1 style="font-family: 'Bebas Neue'; color: var(--gold); margin: 0;">BINGO GOLD</h1>
+        <p style="color: #888; font-size: 0.8rem;">ONLINE MULTIPLAYER</p>
         
-        <div class="photo-preview" onclick="document.getElementById('input-photo').click()">
-            <span id="photo-placeholder" style="font-size: 0.7rem;">📷 PHOTO</span>
-            <img id="preview-img" src="">
+        <div class="photo-picker" onclick="document.getElementById('input-photo').click()">
+            <span id="label-photo">📷 PHOTO</span>
+            <img id="preview-img">
         </div>
         <input type="file" id="input-photo" accept="image/*" capture="user" style="display: none;" onchange="handlePhoto(this)">
         
-        <input type="text" id="user-id" placeholder="Username...">
+        <input type="text" id="user-id" placeholder="Username" style="width:100%; padding:12px; margin-bottom:15px; border-radius:10px; border:none; background:#050510; color:white; text-align:center;">
         
-        <button class="btn-register" onclick="loginToCloud()">CONNECT TO CLOUD</button>
+        <button class="btn-login" onclick="loginToCloud()">LOGIN TO CLOUD</button>
     </div>
 </div>
 
 <nav>
     <div style="display: flex; align-items: center; gap: 10px;">
         <img src="" id="nav-photo" class="profile-img">
-        <span id="nav-name" style="font-weight: bold;">...</span>
+        <span id="nav-name" style="font-weight: 900;">...</span>
     </div>
     <div style="color: var(--gold); font-weight: 900;">🪙 <span id="coin-count">0</span></div>
 </nav>
 
-<div id="status" style="padding: 15px; color: var(--success); font-weight: bold;">PICK YOUR NUMBERS!</div>
+<div id="ranking-box">
+    <h3 style="margin:0 0 10px; font-family: 'Bebas Neue'; color: var(--gold);">🏆 WORLD RANKING</h3>
+    <div id="leaderboard">Loading ranking...</div>
+</div>
+
+<div id="status" style="margin:15px; font-weight:bold; color:var(--success);">PICK 7 NUMBERS!</div>
 <div class="bingo-grid" id="grid"></div>
-<button onclick="drawNumber()" style="background: var(--gold); border: none; padding: 15px 30px; border-radius: 10px; font-weight: 900; margin-bottom: 20px; cursor: pointer; font-family: 'Nunito';">DRAW BALL (10 coins)</button>
+<button onclick="drawBall()" style="background:var(--gold); border:none; padding:15px 40px; border-radius:50px; font-family:'Bebas Neue'; font-size:1.5rem; cursor:pointer; margin-bottom:30px;">DRAW BALL (-10 🪙)</button>
 
 <script>
-    // --- FIREBASE CONFIGURATION ---
+    // --- INSERT YOUR FIREBASE LINKS HERE ---
     const firebaseConfig = {
         apiKey: "YOUR_API_KEY",
         authDomain: "YOUR_PROJECT.firebaseapp.com",
         databaseURL: "https://YOUR_PROJECT.firebaseio.com",
         projectId: "YOUR_PROJECT",
         storageBucket: "YOUR_PROJECT.appspot.com",
-        messagingSenderId: "YOUR_ID",
+        messagingSenderId: "YOUR_SENDER_ID",
         appId: "YOUR_APP_ID"
     };
 
@@ -117,100 +90,99 @@
     const database = firebase.database();
 
     let myId = "";
-    let myPhotoBase64 = "";
-    let selectedNums = [];
+    let myPhoto = "";
+    let picks = [];
 
-    // --- PHOTO HANDLING ---
     function handlePhoto(input) {
-        const file = input.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                myPhotoBase64 = e.target.result;
-                document.getElementById('preview-img').src = myPhotoBase64;
-                document.getElementById('preview-img').style.display = 'block';
-                document.getElementById('photo-placeholder').style.display = 'none';
-            };
-            reader.readAsDataURL(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            myPhoto = e.target.result;
+            document.getElementById('preview-img').src = myPhoto;
+            document.getElementById('preview-img').style.display = 'block';
+            document.getElementById('label-photo').style.display = 'none';
         }
+        reader.readAsDataURL(input.files[0]);
     }
 
-    // --- LOGIN LOGIC ---
     function loginToCloud() {
         myId = document.getElementById('user-id').value.trim();
-        if(!myId) return alert("Please enter a username!");
+        if(!myId) return alert("Please enter a name!");
 
-        const userRef = database.ref('users/' + myId);
-        
-        userRef.once('value', (snapshot) => {
+        database.ref('users/' + myId).once('value', (snapshot) => {
             if (!snapshot.exists()) {
-                // If user doesn't exist, create a new one
-                userRef.set({
-                    name: myId,
-                    coins: 1000,
-                    photo: myPhotoBase64 || "https://api.dicebear.com/7.x/pixel-art/svg?seed=" + myId,
-                    lvl: 1
+                database.ref('users/' + myId).set({
+                    name: myId, coins: 1000, photo: myPhoto || "https://api.dicebear.com/7.x/pixel-art/svg?seed="+myId
                 });
             }
-            startOnlineGame();
+            startApp();
         });
     }
 
-    function startOnlineGame() {
+    function startApp() {
         document.getElementById('login-overlay').style.display = 'none';
-        database.ref('users/' + myId).on('value', (snapshot) => {
-            const data = snapshot.val();
+        
+        // My Data Sync
+        database.ref('users/' + myId).on('value', (s) => {
+            const data = s.val();
             document.getElementById('nav-name').innerText = data.name;
             document.getElementById('coin-count').innerText = data.coins;
             document.getElementById('nav-photo').src = data.photo;
             window.userData = data;
         });
+
+        // Global Ranking Sync (Top 5)
+        database.ref('users').orderByChild('coins').limitToLast(5).on('value', (snap) => {
+            const lb = document.getElementById('leaderboard');
+            let list = [];
+            snap.forEach(c => { list.push(c.val()); });
+            list.reverse();
+            lb.innerHTML = list.map((p, i) => `
+                <div class="rank-item">
+                    <span>${i+1}º ${p.name}</span>
+                    <span class="rank-gold">🪙 ${p.coins}</span>
+                </div>
+            `).join('');
+        });
+
         generateGrid();
     }
 
-    // --- GAME ENGINE ---
     function generateGrid() {
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
-        let nums = Array.from({length: 75}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+        let pool = Array.from({length: 75}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
         for(let i=0; i<25; i++) {
             const cell = document.createElement('div');
-            cell.className = 'cell';
-            cell.innerText = nums[i];
+            cell.className = 'cell'; cell.innerText = pool[i];
             cell.onclick = () => {
-                cell.classList.toggle('marked');
-                const val = parseInt(cell.innerText);
+                const n = parseInt(cell.innerText);
                 if(cell.classList.contains('marked')) {
-                    if(selectedNums.length < 7) selectedNums.push(val);
-                    else {
-                        cell.classList.remove('marked');
-                        alert("You can only pick 7 numbers!");
-                    }
-                } else {
-                    selectedNums = selectedNums.filter(n => n !== val);
+                    cell.classList.remove('marked');
+                    picks = picks.filter(x => x !== n);
+                } else if(picks.length < 7) {
+                    cell.classList.add('marked');
+                    picks.push(n);
                 }
             };
             grid.appendChild(cell);
         }
     }
 
-    function drawNumber() {
-        if(selectedNums.length === 0) return alert("Pick some numbers first!");
-        if(window.userData.coins < 10) return alert("Not enough coins!");
+    function drawBall() {
+        if(picks.length < 1) return alert("Pick your numbers!");
+        if(window.userData.coins < 10) return alert("No coins left!");
 
-        const ball = Math.floor(Math.random() * 75) + 1;
-        let bonus = selectedNums.includes(ball) ? 50 : 0;
+        const drawn = Math.floor(Math.random() * 75) + 1;
+        let prize = picks.includes(drawn) ? 50 : 0;
         
         database.ref('users/' + myId).update({
-            coins: window.userData.coins - 10 + bonus
+            coins: window.userData.coins - 10 + prize
         });
         
-        const statusEl = document.getElementById('status');
-        statusEl.innerText = "BALL: " + ball + (bonus > 0 ? " | MATCH! +50" : "");
-        
-        if(bonus > 0) {
+        document.getElementById('status').innerText = `BALL: ${drawn} ${prize > 0 ? '| MATCH! +50' : ''}`;
+        if(prize > 0) {
             document.querySelectorAll('.cell').forEach(c => {
-                if(parseInt(c.innerText) === ball) c.classList.add('match');
+                if(parseInt(c.innerText) === drawn) c.classList.add('match');
             });
         }
     }
