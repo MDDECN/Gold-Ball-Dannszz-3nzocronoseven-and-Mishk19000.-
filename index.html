@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bingo Gold | Online Ranking</title>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     
@@ -14,10 +11,17 @@
         :root { --gold: #FFD700; --accent: #7b2fff; --dark: #050510; --success: #00ff88; }
         body { background: var(--dark); font-family: 'Nunito', sans-serif; color: #fff; margin: 0; text-align: center; }
 
-        /* LOGIN SCREEN */
+        /* LOGIN SCREEN IMPROVED */
         #login-overlay { position: fixed; inset: 0; background: var(--dark); display: flex; justify-content: center; align-items: center; z-index: 9999; }
         .login-card { background: #13132a; padding: 30px; border-radius: 25px; border: 2px solid var(--accent); width: 85%; max-width: 350px; box-shadow: 0 0 30px rgba(123, 47, 255, 0.3); }
-        .btn-login { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 12px; font-weight: 900; font-size: 1.5rem; cursor: pointer; font-family: 'Bebas Neue'; transition: 0.3s; }
+        
+        .btn-login { 
+            width: 100%; padding: 15px; background: var(--accent); color: white; 
+            border: none; border-radius: 12px; font-weight: 900; font-size: 1.5rem; 
+            cursor: pointer; font-family: 'Bebas Neue'; transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(123, 47, 255, 0.3);
+        }
+        .btn-login:disabled { background: #444; cursor: not-allowed; }
         .btn-login:active { transform: scale(0.95); }
         
         .photo-picker { width: 90px; height: 90px; border-radius: 50%; border: 2px dashed var(--gold); margin: 15px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #222; cursor: pointer; }
@@ -33,7 +37,7 @@
         .rank-gold { color: var(--gold); font-weight: bold; }
 
         .bingo-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; width: 90%; max-width: 380px; margin: 25px auto; }
-        .cell { aspect-ratio: 1; background: #1a1a3a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; border: 1px solid #25254a; }
+        .cell { aspect-ratio: 1; background: #1a1a3a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; border: 1px solid #25254a; transition: 0.2s; }
         .cell.marked { background: var(--accent); border-color: #fff; }
         .cell.match { background: var(--success) !important; color: #000; box-shadow: 0 0 15px var(--success); }
     </style>
@@ -51,9 +55,9 @@
         </div>
         <input type="file" id="input-photo" accept="image/*" capture="user" style="display: none;" onchange="handlePhoto(this)">
         
-        <input type="text" id="user-id" placeholder="Username" style="width:100%; padding:12px; margin-bottom:15px; border-radius:10px; border:none; background:#050510; color:white; text-align:center;">
+        <input type="text" id="user-id" placeholder="Username" style="width:100%; padding:12px; margin-bottom:15px; border-radius:10px; border:none; background:#050510; color:white; text-align:center; outline: none; border: 1px solid #222;">
         
-        <button class="btn-login" onclick="loginToCloud()">LOGIN TO CLOUD</button>
+        <button id="login-btn" class="btn-login" onclick="loginToCloud()">LOGIN TO CLOUD</button>
     </div>
 </div>
 
@@ -67,33 +71,41 @@
 
 <div id="ranking-box">
     <h3 style="margin:0 0 10px; font-family: 'Bebas Neue'; color: var(--gold);">🏆 WORLD RANKING</h3>
-    <div id="leaderboard">Loading ranking...</div>
+    <div id="leaderboard">Waiting for players...</div>
 </div>
 
 <div id="status" style="margin:15px; font-weight:bold; color:var(--success);">PICK 7 NUMBERS!</div>
 <div class="bingo-grid" id="grid"></div>
-<button onclick="drawBall()" style="background:var(--gold); border:none; padding:15px 40px; border-radius:50px; font-family:'Bebas Neue'; font-size:1.5rem; cursor:pointer; margin-bottom:30px;">DRAW BALL (-10 🪙)</button>
+<button onclick="drawBall()" style="background:var(--gold); border:none; padding:15px 40px; border-radius:50px; font-family:'Bebas Neue'; font-size:1.5rem; cursor:pointer; margin-bottom:30px; font-weight: bold;">DRAW BALL (-10 🪙)</button>
 
 <script>
     // --- INSERT YOUR FIREBASE LINKS HERE ---
     const firebaseConfig = {
         apiKey: "YOUR_API_KEY",
         authDomain: "YOUR_PROJECT.firebaseapp.com",
-        databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+        databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
         projectId: "YOUR_PROJECT",
         storageBucket: "YOUR_PROJECT.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
+        messagingSenderId: "YOUR_ID",
         appId: "YOUR_APP_ID"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    // Initialize Firebase safely
+    let database;
+    try {
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+    } catch (e) {
+        console.error("Firebase config is missing!");
+    }
 
     let myId = "";
     let myPhoto = "";
     let picks = [];
 
     function handlePhoto(input) {
+        const file = input.files[0];
+        if(!file) return;
         const reader = new FileReader();
         reader.onload = (e) => {
             myPhoto = e.target.result;
@@ -101,29 +113,45 @@
             document.getElementById('preview-img').style.display = 'block';
             document.getElementById('label-photo').style.display = 'none';
         }
-        reader.readAsDataURL(input.files[0]);
+        reader.readAsDataURL(file);
     }
 
     function loginToCloud() {
+        const btn = document.getElementById('login-btn');
         myId = document.getElementById('user-id').value.trim();
+        
         if(!myId) return alert("Please enter a name!");
+        if(firebaseConfig.apiKey === "YOUR_API_KEY") return alert("Error: Firebase Keys not configured!");
 
-        database.ref('users/' + myId).once('value', (snapshot) => {
+        btn.disabled = true;
+        btn.innerText = "CONNECTING...";
+
+        const userRef = database.ref('users/' + myId);
+        
+        userRef.once('value').then((snapshot) => {
             if (!snapshot.exists()) {
-                database.ref('users/' + myId).set({
-                    name: myId, coins: 1000, photo: myPhoto || "https://api.dicebear.com/7.x/pixel-art/svg?seed="+myId
+                return userRef.set({
+                    name: myId, 
+                    coins: 1000, 
+                    photo: myPhoto || "https://api.dicebear.com/7.x/pixel-art/svg?seed="+myId
                 });
             }
+        }).then(() => {
             startApp();
+        }).catch(err => {
+            alert("Connection Failed! Check your Firebase Rules.");
+            btn.disabled = false;
+            btn.innerText = "LOGIN TO CLOUD";
         });
     }
 
     function startApp() {
         document.getElementById('login-overlay').style.display = 'none';
         
-        // My Data Sync
+        // Sync Data
         database.ref('users/' + myId).on('value', (s) => {
             const data = s.val();
+            if(!data) return;
             document.getElementById('nav-name').innerText = data.name;
             document.getElementById('coin-count').innerText = data.coins;
             document.getElementById('nav-photo').src = data.photo;
@@ -153,7 +181,8 @@
         let pool = Array.from({length: 75}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
         for(let i=0; i<25; i++) {
             const cell = document.createElement('div');
-            cell.className = 'cell'; cell.innerText = pool[i];
+            cell.className = 'cell'; 
+            cell.innerText = pool[i];
             cell.onclick = () => {
                 const n = parseInt(cell.innerText);
                 if(cell.classList.contains('marked')) {
@@ -162,6 +191,8 @@
                 } else if(picks.length < 7) {
                     cell.classList.add('marked');
                     picks.push(n);
+                } else {
+                    alert("Max 7 numbers!");
                 }
             };
             grid.appendChild(cell);
@@ -169,8 +200,8 @@
     }
 
     function drawBall() {
-        if(picks.length < 1) return alert("Pick your numbers!");
-        if(window.userData.coins < 10) return alert("No coins left!");
+        if(picks.length < 1) return alert("Select numbers first!");
+        if(!window.userData || window.userData.coins < 10) return alert("No coins left!");
 
         const drawn = Math.floor(Math.random() * 75) + 1;
         let prize = picks.includes(drawn) ? 50 : 0;
