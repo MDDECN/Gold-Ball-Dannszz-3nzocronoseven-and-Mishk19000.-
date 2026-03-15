@@ -3,66 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bingo Gold | Online Ranking</title>
-    
+    <title>ProjectBin | Bingo Online</title>
+
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
-    
+
     <style>
-        :root { --gold: #FFD700; --accent: #7b2fff; --dark: #050510; --success: #00ff88; }
+        :root { --gold: #FFD700; --accent: #7b2fff; --dark: #050510; --success: #00ff88; --danger: #ff4444; }
         body { background: var(--dark); font-family: 'Nunito', sans-serif; color: #fff; margin: 0; text-align: center; overflow-x: hidden; }
 
-        /* LOGIN SCREEN */
         #login-overlay { position: fixed; inset: 0; background: var(--dark); display: flex; justify-content: center; align-items: center; z-index: 9999; }
         .login-card { background: #13132a; padding: 30px; border-radius: 25px; border: 2px solid var(--accent); width: 85%; max-width: 350px; box-shadow: 0 0 30px rgba(123, 47, 255, 0.3); }
-        
-        .btn-login { 
-            width: 100%; padding: 15px; background: var(--accent); color: white; 
-            border: none; border-radius: 12px; font-weight: 900; font-size: 1.5rem; 
-            cursor: pointer; font-family: 'Bebas Neue'; transition: 0.3s;
-        }
-        .btn-login:active { transform: scale(0.95); }
-        
-        .photo-picker { width: 90px; height: 90px; border-radius: 50%; border: 2px dashed var(--gold); margin: 15px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #222; cursor: pointer; }
-        #preview-img { width: 100%; height: 100%; object-fit: cover; display: none; }
 
-        /* UI */
+        .photo-selector { width: 100px; height: 100px; border-radius: 50%; border: 3px dashed var(--gold); margin: 0 auto 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #1a1a3a; position: relative; }
+        .photo-selector img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-selector span { font-size: 0.7rem; color: var(--gold); font-weight: bold; position: absolute; }
+
+        .btn-login { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 12px; font-weight: 900; font-size: 1.5rem; cursor: pointer; font-family: 'Bebas Neue'; transition: 0.3s; }
+        .btn-login:disabled { background: #444; }
+
         nav { background: #13132a; padding: 15px; border-bottom: 2px solid var(--gold); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .profile-img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; background: #222; }
-        
-        /* RANKING */
+
         #ranking-box { background: rgba(123, 47, 255, 0.1); margin: 20px auto; padding: 15px; border-radius: 15px; width: 90%; max-width: 350px; border: 1px solid var(--accent); }
         .rank-item { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px solid #222; font-size: 0.9rem; align-items: center; }
-        .rank-gold { color: var(--gold); font-weight: bold; }
 
-        /* GRID */
         .bingo-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; width: 90%; max-width: 380px; margin: 20px auto; }
         .cell { aspect-ratio: 1; background: #1a1a3a; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; border: 1px solid #25254a; font-size: 1.2rem; }
         .cell.marked { background: var(--accent); border-color: #fff; }
-        .cell.match { background: var(--success) !important; color: #000; box-shadow: 0 0 15px var(--success); transform: scale(1.05); }
-        
-        .btn-draw { background: var(--gold); border: none; padding: 15px 40px; border-radius: 50px; font-family: 'Bebas Neue'; font-size: 1.6rem; cursor: pointer; margin: 20px 0 40px; font-weight: bold; box-shadow: 0 4px 0 #b8860b; }
-        .btn-draw:active { transform: translateY(3px); box-shadow: none; }
+        .cell.match { background: var(--success) !important; color: #000; transform: scale(1.05); box-shadow: 0 0 10px var(--success); }
+
+        .btn-draw { background: var(--gold); border: none; padding: 15px 40px; border-radius: 50px; font-family: 'Bebas Neue'; font-size: 1.6rem; cursor: pointer; margin: 20px 0 40px; font-weight: bold; width: 80%; }
     </style>
 </head>
 <body>
 
 <div id="login-overlay">
     <div class="login-card">
-        <h1 style="font-family: 'Bebas Neue'; color: var(--gold); margin: 0; font-size: 3rem;">BINGO GOLD</h1>
-        <p style="color: #888; font-size: 0.9rem; margin-bottom: 20px;">ONLINE WORLD RANKING</p>
+        <h1 style="font-family: 'Bebas Neue'; color: var(--gold); margin: 0; font-size: 3rem;">PROJECTBIN</h1>
+        <p style="color: #888; margin-bottom: 20px;">ONLINE BINGO</p>
         
-        <div class="photo-picker" onclick="document.getElementById('input-photo').click()">
-            <span id="label-photo">📷 PHOTO</span>
-            <img id="preview-img">
+        <div class="photo-selector" onclick="document.getElementById('photo-input').click()">
+            <span id="cam-icon">📷 PHOTO</span>
+            <img id="login-preview" src="" style="display:none">
         </div>
-        <input type="file" id="input-photo" accept="image/*" capture="user" style="display: none;" onchange="handlePhoto(this)">
-        
-        <input type="text" id="user-id" placeholder="Enter Username" style="width:100%; padding:15px; margin-bottom:20px; border-radius:12px; border:none; background:#050510; color:white; text-align:center; box-sizing: border-box; font-size: 1rem;">
-        
-        <button id="login-btn" class="btn-login" onclick="loginToCloud()">PLAY NOW</button>
+        <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="previewFile()">
+
+        <input type="text" id="user-id" placeholder="Username" style="width:100%; padding:15px; margin-bottom:20px; border-radius:12px; border:none; background:#050510; color:white; text-align:center;">
+        <button id="login-btn" class="btn-login" onclick="loginToFirestore()">PLAY NOW</button>
     </div>
 </div>
 
@@ -75,144 +65,163 @@
 </nav>
 
 <div id="ranking-box">
-    <h3 style="margin:0 0 10px; font-family: 'Bebas Neue'; color: var(--gold); letter-spacing: 1px;">🏆 TOP PLAYERS</h3>
-    <div id="leaderboard">Connecting to server...</div>
+    <h3 style="margin:0 0 10px; font-family: 'Bebas Neue'; color: var(--gold);">🏆 PROJECTBIN RANKING</h3>
+    <div id="leaderboard">Loading...</div>
 </div>
 
-<div id="status" style="margin:10px; font-weight:bold; color:var(--success); min-height: 1.2em;">PICK 7 NUMBERS!</div>
+<div id="status" style="margin:10px; font-weight:bold; color:var(--gold);">CHOOSE YOUR 7 NUMBERS!</div>
 <div class="bingo-grid" id="grid"></div>
-<button class="btn-draw" onclick="drawBall()">DRAW BALL (-10 🪙)</button>
+<button id="draw-button" class="btn-draw" onclick="drawBall()">DRAW BALL (-10 🪙)</button>
 
 <script>
-    // --- FIREBASE CONFIG ---
     const firebaseConfig = {
-        apiKey: "COLOCA_AQUI_A_TUA_CHAVE",
-        authDomain: "TEU_PROJETO.firebaseapp.com",
-        databaseURL: "https://TEU_PROJETO-default-rtdb.firebaseio.com",
-        projectId: "TEU_PROJETO",
-        storageBucket: "TEU_PROJETO.appspot.com",
-        messagingSenderId: "TEU_ID",
-        appId: "TEU_APP_ID"
+        projectId: "projectbin-bdf03",
+        appId: "1:185075588211:web:14b59b9f7f4092cf1f1e06",
+        messagingSenderId: "185075588211"
     };
 
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const db = firebase.firestore();
 
     let myId = "";
-    let myPhoto = "";
-    let picks = [];
     let userData = null;
+    let picks = [];
+    let isLocked = false;
+    let base64Photo = "";
 
-    function handlePhoto(input) {
-        const file = input.files[0];
-        if(!file) return;
+    function previewFile() {
+        const file = document.getElementById('photo-input').files[0];
         const reader = new FileReader();
-        reader.onload = (e) => {
-            myPhoto = e.target.result;
-            document.getElementById('preview-img').src = myPhoto;
-            document.getElementById('preview-img').style.display = 'block';
-            document.getElementById('label-photo').style.display = 'none';
+        reader.onloadend = function() {
+            base64Photo = reader.result;
+            document.getElementById('login-preview').src = base64Photo;
+            document.getElementById('login-preview').style.display = 'block';
+            document.getElementById('cam-icon').style.display = 'none';
         }
-        reader.readAsDataURL(file);
+        if (file) reader.readAsDataURL(file);
     }
 
-    function loginToCloud() {
-        myId = document.getElementById('user-id').value.trim();
+    async function loginToFirestore() {
+        myId = document.getElementById('user-id').value.trim().toLowerCase();
         if(!myId) return alert("Please enter a name!");
 
-        const btn = document.getElementById('login-btn');
-        btn.innerText = "CONNECTING...";
-        btn.disabled = true;
+        const userRef = db.collection('users').doc(myId);
+        const doc = await userRef.get();
+        const today = new Date().toDateString();
 
-        const userRef = database.ref('users/' + myId);
-        
-        userRef.once('value').then((snapshot) => {
-            if (!snapshot.exists()) {
-                return userRef.set({
-                    name: myId, 
-                    coins: 1000, 
-                    photo: myPhoto || "https://api.dicebear.com/7.x/pixel-art/svg?seed=" + myId
-                });
+        if (!doc.exists) {
+            await userRef.set({
+                name: myId,
+                coins: 1000,
+                lastLogin: today,
+                myNumbers: [],
+                photo: base64Photo || `https://api.dicebear.com/7.x/pixel-art/svg?seed=${myId}`
+            });
+        } else {
+            let data = doc.data();
+            const updates = { lastLogin: today };
+            if (base64Photo) updates.photo = base64Photo;
+            if (data.lastLogin !== today) {
+                alert("Daily Bonus: +1000 coins!");
+                updates.coins = 1000;
             }
-        }).then(() => {
-            startApp();
-        }).catch(err => {
-            alert("Error: Check your Firebase Database Rules!");
-            btn.disabled = false;
-            btn.innerText = "PLAY NOW";
-        });
+            await userRef.update(updates);
+        }
+        startApp();
     }
 
     function startApp() {
         document.getElementById('login-overlay').style.display = 'none';
-        
-        // My Data Sync
-        database.ref('users/' + myId).on('value', (s) => {
-            userData = s.val();
-            if(!userData) return;
+
+        db.collection('users').doc(myId).onSnapshot((doc) => {
+            userData = doc.data();
             document.getElementById('nav-name').innerText = userData.name;
             document.getElementById('coin-count').innerText = userData.coins;
             document.getElementById('nav-photo').src = userData.photo;
+            
+            if(userData.myNumbers && userData.myNumbers.length > 0) {
+                isLocked = true;
+                renderCard(userData.myNumbers);
+                document.getElementById('status').innerText = "CARD REGISTERED";
+            } else {
+                generateGrid();
+            }
         });
 
-        // Global Ranking (Top 5)
-        database.ref('users').orderByChild('coins').limitToLast(5).on('value', (snap) => {
+        db.collection('users').orderBy('coins', 'desc').limit(5).onSnapshot((snap) => {
             const lb = document.getElementById('leaderboard');
-            let list = [];
-            snap.forEach(c => { list.push(c.val()); });
-            list.reverse();
-            lb.innerHTML = list.map((p, i) => `
+            lb.innerHTML = snap.docs.map((d, i) => `
                 <div class="rank-item">
-                    <span>${i+1}º ${p.name}</span>
-                    <span class="rank-gold">🪙 ${p.coins}</span>
+                    <div style="display:flex; align-items:center; gap:8px">
+                        <span>${i+1}º</span>
+                        <img src="${d.data().photo}" style="width:25px; height:25px; border-radius:50%; object-fit:cover">
+                        <span>${d.data().name}</span>
+                    </div>
+                    <span style="color:var(--gold)">🪙 ${d.data().coins}</span>
                 </div>
             `).join('');
         });
-
-        generateGrid();
     }
 
     function generateGrid() {
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
-        let pool = Array.from({length: 75}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
-        for(let i=0; i<25; i++) {
+        for(let i=1; i<=25; i++) {
             const cell = document.createElement('div');
-            cell.className = 'cell'; 
-            cell.innerText = pool[i];
+            cell.className = 'cell';
+            cell.innerText = i;
             cell.onclick = () => {
-                const n = parseInt(cell.innerText);
+                if(isLocked) return;
                 if(cell.classList.contains('marked')) {
                     cell.classList.remove('marked');
-                    picks = picks.filter(x => x !== n);
+                    picks = picks.filter(x => x !== i);
                 } else if(picks.length < 7) {
                     cell.classList.add('marked');
-                    picks.push(n);
+                    picks.push(i);
                 }
+                if(picks.length === 7) confirmCard();
             };
             grid.appendChild(cell);
         }
     }
 
-    function drawBall() {
-        if(picks.length < 7) return alert("Select 7 numbers first!");
-        if(!userData || userData.coins < 10) return alert("Not enough coins!");
+    function confirmCard() {
+        if(confirm("Confirm these numbers? You cannot change them later.")) {
+            db.collection('users').doc(myId).update({ myNumbers: picks });
+        }
+    }
 
-        const drawn = Math.floor(Math.random() * 75) + 1;
-        let isMatch = picks.includes(drawn);
-        let prize = isMatch ? 100 : 0;
-        
-        database.ref('users/' + myId).update({
+    function renderCard(nums) {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = '';
+        nums.forEach(n => {
+            const cell = document.createElement('div');
+            cell.className = 'cell marked';
+            cell.id = 'num-' + n;
+            cell.innerText = n;
+            grid.appendChild(cell);
+        });
+    }
+
+    async function drawBall() {
+        if(!isLocked) return alert("Select your numbers first!");
+        if(userData.coins < 10) return alert("Out of coins! Come back tomorrow.");
+
+        const ball = Math.floor(Math.random() * 75) + 1;
+        const isMatch = userData.myNumbers.includes(ball);
+        const prize = isMatch ? 200 : 0;
+
+        await db.collection('users').doc(myId).update({
             coins: userData.coins - 10 + prize
         });
-        
-        document.getElementById('status').innerText = isMatch ? `BALL: ${drawn} - YOU WON 100! 🪙` : `BALL: ${drawn} - No match.`;
-        document.getElementById('status').style.color = isMatch ? "var(--success)" : "#ff4444";
 
+        const st = document.getElementById('status');
+        st.innerText = `DRAWN: ${ball}`;
+        st.style.color = isMatch ? "var(--success)" : "var(--danger)";
+        
         if(isMatch) {
-            document.querySelectorAll('.cell').forEach(c => {
-                if(parseInt(c.innerText) === drawn) c.classList.add('match');
-            });
+            const el = document.getElementById('num-' + ball);
+            if(el) el.classList.add('match');
         }
     }
 </script>
